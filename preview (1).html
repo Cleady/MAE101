@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI & Ma Trận Nghịch Đảo - Interactive Quiz</title>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(','\\)'], ['$', '$']]
+      }
+    };
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Zen+Tokyo+Zoo&display=swap" rel="stylesheet">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      font-family:'Poppins',sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(255,182,193,0.2), transparent 40%),
+        linear-gradient(135deg,#0f1021,#1b1d3a,#2b1f45);
+      color:white;
+      min-height:100vh;
+      overflow-x:hidden;
+      padding:30px;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image:
+      url("https://images.unsplash.com/photo-1522383225653-ed111181a951?q=80&w=2070&auto=format&fit=crop");
+      background-size:cover;
+      background-position:center;
+      opacity:0.12;
+      z-index:-2;
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:rgba(10,10,25,0.65);
+      z-index:-1;
+    }
+
+    .container{
+      max-width:1200px;
+      margin:auto;
+    }
+
+    .hero{
+      text-align:center;
+      padding:40px 20px;
+      margin-bottom:40px;
+      border-radius:25px;
+      backdrop-filter:blur(12px);
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.15);
+      box-shadow:0 0 25px rgba(255,105,180,0.25);
+    }
+
+    .hero h1{
+      font-family:'Zen Tokyo Zoo',cursive;
+      font-size:4rem;
+      color:#ffb7d5;
+      letter-spacing:3px;
+      text-shadow:0 0 20px #ff69b4;
+    }
+
+    .hero p{
+      margin-top:15px;
+      font-size:1.1rem;
+      color:#ddd;
+    }
+
+    .section-title{
+      margin:40px 0 20px;
+      font-size:2rem;
+      color:#ffd1e8;
+      border-left:5px solid #ff69b4;
+      padding-left:15px;
+    }
+
+    .question-card{
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.15);
+      backdrop-filter:blur(10px);
+      padding:25px;
+      border-radius:22px;
+      margin-bottom:30px;
+      transition:0.4s;
+      box-shadow:0 0 15px rgba(255,105,180,0.15);
+    }
+
+    .question-card:hover{
+      transform:translateY(-3px);
+      box-shadow:0 0 25px rgba(255,105,180,0.35);
+    }
+
+    .question{
+      font-size:1.1rem;
+      margin-bottom:20px;
+      line-height:1.7;
+    }
+
+    .answers{
+      display:grid;
+      gap:12px;
+    }
+
+    .option{
+      padding:14px 16px;
+      border:none;
+      border-radius:14px;
+      cursor:pointer;
+      font-size:1rem;
+      background:rgba(255,255,255,0.08);
+      color:white;
+      border:1px solid rgba(255,255,255,0.15);
+      transition:0.3s;
+      text-align:left;
+    }
+
+    .option:hover{
+      background:rgba(255,105,180,0.2);
+      transform:scale(1.02);
+    }
+
+    .correct{
+      background:#2ecc71 !important;
+      color:white;
+      border:none;
+      box-shadow:0 0 15px #2ecc71;
+    }
+
+    .wrong{
+      background:#ff4d6d !important;
+      color:white;
+      border:none;
+      box-shadow:0 0 15px #ff4d6d;
+    }
+
+    .explanation{
+      margin-top:20px;
+      padding:18px;
+      border-radius:15px;
+      background:rgba(0,0,0,0.35);
+      border-left:5px solid #ff69b4;
+      display:none;
+      animation:fadeIn 0.5s ease;
+    }
+
+    .tip{
+      margin-top:10px;
+      color:#ffd166;
+      font-weight:600;
+    }
+
+    @keyframes fadeIn{
+      from{
+        opacity:0;
+        transform:translateY(10px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    .score-board{
+      position:sticky;
+      top:10px;
+      z-index:100;
+      background:rgba(255,255,255,0.08);
+      backdrop-filter:blur(12px);
+      padding:15px;
+      border-radius:18px;
+      margin-bottom:30px;
+      text-align:center;
+      font-size:1.2rem;
+      border:1px solid rgba(255,255,255,0.15);
+    }
+
+    .footer{
+      text-align:center;
+      margin-top:50px;
+      padding:30px;
+      color:#ddd;
+    }
+
+    .anime{
+      color:#ff9de2;
+      font-weight:bold;
+    }
+
+    @media(max-width:768px){
+      .hero h1{
+        font-size:2.5rem;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="hero">
+    <h1>AI QUIZ SAKURA</h1>
+    <p>
+      Interactive Exam — AI, Harnessing & Matrix Inverse 🌸
+    </p>
+  </div>
+
+  <div class="score-board">
+    🌸 Điểm hiện tại:
+    <span id="score">0</span> / 20
+  </div>
+
+  <h2 class="section-title">📘 Phần I — Lý thuyết (5 câu)</h2>
+
+  <div id="quiz-container"></div>
+
+  <div class="footer">
+    🌸 Anime Night Sakura Modern Japanese Interface 🌸
+    <br>
+    Designed for Gen Z learners ✨
+  </div>
+
+</div>
+
+<script>
+
+const questions = [
+
+  // ================= THEORY =================
+
+  {
+    type:"Lý thuyết",
+    question:"Ba trụ cột của AI theo bài giảng là gì?",
+    options:[
+      "AI - ML - DL",
+      "Prompt - Context - Harnessing",
+      "Toán - Lý - Hóa",
+      "Input - Output - GPU"
+    ],
+    answer:1,
+    explanation:"Ba trụ cột giúp điều khiển AI gồm Prompt (câu lệnh), Context (ngữ cảnh), Harnessing (ghì cương AI).",
+    tip:"Mẹo nhớ nhanh: PCH = Prompt → Context → Harnessing."
+  },
+
+  {
+    type:"Lý thuyết",
+    question:"Harnessing nghĩa là gì?",
+    options:[
+      "Cho AI tự do hoạt động",
+      "Tắt AI",
+      "Ghì cương và điều khiển AI",
+      "Lập trình AI"
+    ],
+    answer:2,
+    explanation:"Harnessing nghĩa là ghì cương AI giống như điều khiển một con ngựa.",
+    tip:"Nhớ hình ảnh cưỡi ngựa → phải có dây cương."
+  },
+
+  {
+    type:"Lý thuyết",
+    question:"Vai trò mới của người thầy trong thời đại AI là gì?",
+    options:[
+      "Đọc PowerPoint",
+      "Chấm điểm",
+      "Dạy thuộc lòng",
+      "Chỉ cách học và điều khiển AI"
+    ],
+    answer:3,
+    explanation:"Người thầy không chỉ giảng bài mà còn hướng dẫn tư duy và harnessing AI.",
+    tip:"AI dạy nhanh, nhưng thầy dạy cách suy nghĩ."
+  },
+
+  {
+    type:"Lý thuyết",
+    question:"Theo bài giảng, AI clone giáo viên có thể làm gì?",
+    options:[
+      "Bắt chước phong cách giảng dạy",
+      "Thay thế hoàn toàn giáo viên",
+      "Không thể dạy toán",
+      "Chỉ đọc văn bản"
+    ],
+    answer:0,
+    explanation:"AI có thể clone phong cách giảng, suy luận và cách trình bày của giáo viên.",
+    tip:"Clone ≠ thay thế hoàn toàn."
+  },
+
+  {
+    type:"Lý thuyết",
+    question:"Theo triết lý bài giảng, học sinh cần học gì?",
+    options:[
+      "Học thuộc",
+      "Học mẹo",
+      "Học tư duy",
+      "Học chép bài"
+    ],
+    answer:2,
+    explanation:"Mục tiêu cuối cùng là học tư duy và bản chất của kiến thức.",
+    tip:"Tư duy > ghi nhớ."
+  },
+
+  // ================= EASY =================
+
+  {
+    type:"Dễ",
+    question:"Tính định thức: \\(A=\\begin{pmatrix}2&1\\\\1&3\\end{pmatrix}\\)",
+    options:["5","6","4","7"],
+    answer:0,
+    explanation:"\\(det(A)=2\\cdot3-1\\cdot1=6-1=5\\)",
+    tip:"Ma trận 2x2: ad - bc"
+  },
+
+  {
+    type:"Dễ",
+    question:"Nghịch đảo của ma trận tồn tại khi nào?",
+    options:[
+      "\\(det(A)=0\\)",
+      "\\(det(A)\\neq0\\)",
+      "Luôn tồn tại",
+      "Không bao giờ tồn tại"
+    ],
+    answer:1,
+    explanation:"Ma trận khả nghịch khi định thức khác 0.",
+    tip:"det ≠ 0 → inverse tồn tại."
+  },
+
+  {
+    type:"Dễ",
+    question:"Công thức nghịch đảo ma trận là:",
+    options:[
+      "\\(A^{-1}=det(A)A\\)",
+      "\\(A^{-1}=\\frac1{det(A)}adj(A)\\)",
+      "\\(A^{-1}=A^T\\)",
+      "\\(A^{-1}=A+A^T\\)"
+    ],
+    answer:1,
+    explanation:"Đây là công thức chuẩn cho ma trận nghịch đảo.",
+    tip:"Inverse luôn có adj(A)."
+  },
+
+  {
+    type:"Dễ",
+    question:"Minor là gì?",
+    options:[
+      "Định thức ma trận con",
+      "Ma trận nghịch đảo",
+      "Ma trận đơn vị",
+      "Chuyển vị"
+    ],
+    answer:0,
+    explanation:"Minor là định thức của ma trận con sau khi bỏ hàng và cột.",
+    tip:"Minor → ma trận nhỏ hơn."
+  },
+
+  {
+    type:"Dễ",
+    question:"Cofactor được tính bằng:",
+    options:[
+      "\\(M_{ij}\\)",
+      "\\((-1)^{i+j}M_{ij}\\)",
+      "\\(M_{ij}^2\\)",
+      "\\(det(A)\\)"
+    ],
+    answer:1,
+    explanation:"Cofactor thêm dấu \\((-1)^{i+j}\\).",
+    tip:"Bàn cờ dấu + - + -."
+  },
+
+  // ================= MEDIUM =================
+
+  {
+    type:"Trung bình",
+    question:"Cho \\(A=\\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}\\). Tính \\(det(A)\\).",
+    options:["-2","2","10","-10"],
+    answer:0,
+    explanation:"\\(1\\cdot4-2\\cdot3=4-6=-2\\)",
+    tip:"Nhân chéo rồi trừ."
+  },
+
+  {
+    type:"Trung bình",
+    question:"Ma trận đơn vị cấp 2 là:",
+    options:[
+      "\\(\\begin{pmatrix}1&0\\\\0&1\\end{pmatrix}\\)",
+      "\\(\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}\\)",
+      "\\(\\begin{pmatrix}1&1\\\\1&1\\end{pmatrix}\\)",
+      "\\(\\begin{pmatrix}2&0\\\\0&2\\end{pmatrix}\\)"
+    ],
+    answer:0,
+    explanation:"Ma trận đơn vị có 1 trên đường chéo chính.",
+    tip:"Identity matrix = giữ nguyên vector."
+  },
+
+  {
+    type:"Trung bình",
+    question:"Adjugate matrix là gì?",
+    options:[
+      "Chuyển vị của ma trận cofactor",
+      "Ma trận nghịch đảo",
+      "Ma trận đơn vị",
+      "Minor"
+    ],
+    answer:0,
+    explanation:"Adj(A)=C^T",
+    tip:"Adj = transpose của cofactor."
+  },
+
+  {
+    type:"Trung bình",
+    question:"Nếu \\(det(A)=0\\), điều gì xảy ra?",
+    options:[
+      "A có nghịch đảo",
+      "A không khả nghịch",
+      "A là ma trận đơn vị",
+      "A là ma trận chéo"
+    ],
+    answer:1,
+    explanation:"Không thể chia cho 0 trong công thức nghịch đảo.",
+    tip:"det=0 → dead."
+  },
+
+  {
+    type:"Trung bình",
+    question:"\\(A\\cdot A^{-1}= ?\\)",
+    options:[
+      "0",
+      "A",
+      "I",
+      "A^2"
+    ],
+    answer:2,
+    explanation:"Nhân ma trận với nghịch đảo cho ra ma trận đơn vị.",
+    tip:"Inverse = undo transformation."
+  },
+
+  // ================= HARD =================
+
+  {
+    type:"Khó",
+    question:"Cho \\(A=\\begin{pmatrix}3&1\\\\2&1\\end{pmatrix}\\). Tính \\(A^{-1}\\).",
+    options:[
+      "\\(\\begin{pmatrix}1&-1\\\\-2&3\\end{pmatrix}\\)",
+      "\\(\\begin{pmatrix}1&1\\\\2&3\\end{pmatrix}\\)",
+      "\\(\\begin{pmatrix}3&-1\\\\-2&1\\end{pmatrix}\\)",
+      "\\(\\begin{pmatrix}1&-1\\\\2&3\\end{pmatrix}\\)"
+    ],
+    answer:0,
+    explanation:"det=1 nên nghịch đảo chính là ma trận adjugate.",
+    tip:"Nếu det=1 thì inverse = adj."
+  },
+
+  {
+    type:"Khó",
+    question:"Cho \\(A=\\begin{pmatrix}2&0\\\\0&2\\end{pmatrix}\\). Tính \\(A^{-1}\\).",
+    options:[
+      "\\(\\begin{pmatrix}2&0\\\\0&2\\end{pmatrix}\\)",
+      "\\(\\begin{pmatrix}0.5&0\\\\0&0.5\\end{pmatrix}\\)",
+      "\\(\\begin{pmatrix}1&0\\\\0&1\\end{pmatrix}\\)",
+      "\\(\\begin{pmatrix}0&2\\\\2&0\\end{pmatrix}\\)"
+    ],
+    answer:1,
+    explanation:"Nghịch đảo của ma trận chéo là nghịch đảo từng phần tử.",
+    tip:"Diagonal matrix rất dễ invert."
+  },
+
+  {
+    type:"Khó",
+    question:"Nếu \\(A^{-1}=A\\), ma trận đó gọi là gì?",
+    options:[
+      "Orthogonal",
+      "Involutory",
+      "Singular",
+      "Adjugate"
+    ],
+    answer:1,
+    explanation:"Ma trận involutory thỏa \\(A^{-1}=A\\).",
+    tip:"Inverse giống chính nó."
+  },
+
+  {
+    type:"Khó",
+    question:"Điều nào đúng về AI theo bài giảng?",
+    options:[
+      "AI thay thế hoàn toàn tư duy",
+      "AI chỉ là công cụ cần harnessing",
+      "AI luôn đúng",
+      "AI không cần context"
+    ],
+    answer:1,
+    explanation:"AI là công cụ mạnh nhưng cần định hướng.",
+    tip:"AI mạnh nhưng không tự có trí tuệ thật."
+  },
+
+  {
+    type:"Khó",
+    question:"Theo bài giảng, điều quan trọng nhất trong giáo dục là:",
+    options:[
+      "PowerPoint đẹp",
+      "Học thuộc công thức",
+      "Tốc độ làm bài",
+      "Quá trình tư duy"
+    ],
+    answer:3,
+    explanation:"Giáo dục quay về bản chất tư duy.",
+    tip:"Process > result."
+  }
+
+];
+
+const quizContainer = document.getElementById("quiz-container");
+const scoreEl = document.getElementById("score");
+
+let score = 0;
+
+questions.forEach((q,index)=>{
+
+  const card = document.createElement("div");
+  card.className = "question-card";
+
+  card.innerHTML = `
+    <div class="question">
+      <strong>Câu ${index+1} (${q.type})</strong><br><br>
+      ${q.question}
+    </div>
+
+    <div class="answers">
+      ${q.options.map((opt,i)=>
+        `<button class="option">${String.fromCharCode(65+i)}. ${opt}</button>`
+      ).join("")}
+    </div>
+
+    <div class="explanation">
+      <strong>✅ Đáp án đúng:</strong>
+      ${String.fromCharCode(65+q.answer)}
+      <br><br>
+      <strong>📖 Giải thích:</strong>
+      ${q.explanation}
+      <div class="tip">
+        ⚡ Mẹo làm nhanh: ${q.tip}
+      </div>
+    </div>
+  `;
+
+  const buttons = card.querySelectorAll(".option");
+  const explain = card.querySelector(".explanation");
+
+  buttons.forEach((btn,btnIndex)=>{
+
+    btn.addEventListener("click",()=>{
+
+      if(card.classList.contains("answered")) return;
+
+      card.classList.add("answered");
+
+      if(btnIndex===q.answer){
+        btn.classList.add("correct");
+        score++;
+        scoreEl.innerText = score;
+      }else{
+        btn.classList.add("wrong");
+        buttons[q.answer].classList.add("correct");
+      }
+
+      explain.style.display = "block";
+
+      MathJax.typesetPromise();
+    });
+
+  });
+
+  quizContainer.appendChild(card);
+
+});
+
+</script>
+
+</body>
+</html>
